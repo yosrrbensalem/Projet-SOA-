@@ -1,0 +1,59 @@
+syntax = "proto3";
+
+package feedback;
+
+service FeedbackService {
+  // Submit a new feedback
+  rpc SubmitFeedback (SubmitFeedbackRequest) returns (SubmitFeedbackResponse);
+  
+  // Query feedbacks
+  rpc GetAllFeedbacks (GetAllFeedbacksRequest) returns (GetAllFeedbacksResponse);
+  rpc GetFeedbacksByUser (GetFeedbacksByUserRequest) returns (GetFeedbacksResponse);
+  rpc GetFeedbacksByCategory (GetFeedbacksByCategoryRequest) returns (GetFeedbacksResponse);
+  rpc GetFeedbacksByScore (GetFeedbacksByScoreRequest) returns (GetFeedbacksResponse);
+}
+
+message SubmitFeedbackRequest {
+  string userId = 1;
+  string content = 2;
+}
+
+message SubmitFeedbackResponse {
+  string id = 1;
+  bool success = 2;
+  string error = 3;
+}
+
+message GetAllFeedbacksRequest {
+  // Empty request
+}
+
+message GetAllFeedbacksResponse {
+  repeated Feedback feedbacks = 1;
+}
+
+message GetFeedbacksByUserRequest {
+  string userId = 1;
+}
+
+message GetFeedbacksByCategoryRequest {
+  string category = 1;
+}
+
+message GetFeedbacksByScoreRequest {
+  double minScore = 1;
+}
+
+message GetFeedbacksResponse {
+  repeated Feedback feedbacks = 1;
+}
+
+message Feedback {
+  string id = 1;
+  string userId = 2;
+  string content = 3;
+  string category = 4;
+  string sentiment = 5;
+  double score = 6;
+  string createdAt = 7;
+} 

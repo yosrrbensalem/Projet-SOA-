@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+package classification;
+
+service ClassificationService {
+  rpc ClassifyFeedback (ClassificationRequest) returns (ClassificationResponse);
+}
+
+message ClassificationRequest {
+  string feedbackId = 1;
+  string content = 2;
+}
+
+message ClassificationResponse {
+  bool success = 1;
+  string sentiment = 2;
+  string category = 3;
+}
