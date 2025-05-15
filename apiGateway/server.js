@@ -9,7 +9,7 @@ const { Kafka } = require('kafkajs');
 const WebSocket = require('ws');
 const cors = require('cors');
 const app = express();
-const PORT = 3005;
+const PORT = 3007;
 
 // Middleware
 app.use(express.json());
@@ -251,10 +251,10 @@ async function startServer() {
     console.log(`API Gateway démarré sur le port ${PORT}`);
     console.log(`GraphQL disponible à http://localhost:${PORT}/graphql`);
     
-    // Comment out Kafka consumer if having issues
-    // startKafkaConsumer().catch(err => {
-    //   console.error('Failed to start Kafka consumer:', err);
-    // });
+    // Start Kafka consumer for real-time notifications
+    startKafkaConsumer().catch(err => {
+      console.error('Failed to start Kafka consumer:', err);
+    });
   });
 }
 
@@ -270,22 +270,41 @@ async function startKafkaConsumer() {
   await consumer.connect();
   console.log('Kafka consumer connected for WebSocket broadcasts');
   
+  // Subscribe to the feedback-submitted topic
   await consumer.subscribe({ 
     topic: 'feedback-submitted', 
+    fromBeginning: false 
+  });
+  
+  // Also subscribe to the notifications topic from NotificationService
+  await consumer.subscribe({ 
+    topic: 'notifications', 
     fromBeginning: false 
   });
   
   await consumer.run({
     eachMessage: async ({ topic, partition, message }) => {
       try {
-        const feedbackData = JSON.parse(message.value.toString());
-        console.log(`Received feedback for broadcast: ${feedbackData.id}`);
+        const data = JSON.parse(message.value.toString());
         
-        // Broadcast the new feedback to all connected clients
-        broadcast({
-          type: 'NEW_FEEDBACK',
-          data: feedbackData
-        });
+        if (topic === 'feedback-submitted') {
+          console.log(`Received feedback for broadcast: ${data.id}`);
+          
+          // Broadcast the new feedback to all connected clients
+          broadcast({
+            type: 'NEW_FEEDBACK',
+            data: data
+          });
+        } 
+        else if (topic === 'notifications') {
+          console.log(`Received notification for broadcast: ${data.id}`);
+          
+          // Broadcast the notification to all connected clients
+          broadcast({
+            type: 'NOTIFICATION',
+            data: data
+          });
+        }
       } catch (error) {
         console.error('Error processing WebSocket message:', error);
       }

@@ -5,7 +5,7 @@ const grpc = require('@grpc/grpc-js');
 const protoLoader = require('@grpc/proto-loader');
 const path = require('path');
 const app = express();
-const PORT = 3001;
+const PORT = 3006;
 const GRPC_PORT = 50051;
 
 // MongoDB connection

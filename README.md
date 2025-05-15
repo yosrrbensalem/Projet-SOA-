@@ -62,7 +62,7 @@ Ce projet démontre la mise en œuvre d'une architecture de microservices modern
 
 ## 📋 Description des Microservices
 
-### 1. 🌐 API Gateway (Port 3005)
+### 1. 🌐 API Gateway (Port 3007)
 
 L'API Gateway sert de point d'entrée central pour le système, permettant aux clients d'interagir avec les services sous-jacents via différents protocoles.
 
@@ -91,10 +91,10 @@ L'API Gateway sert de point d'entrée central pour le système, permettant aux c
     - `submitFeedback` - Soumettre un nouveau feedback
 
 - 🔌 WebSockets:
-  - URL: `ws://localhost:3005`
+  - URL: `ws://localhost:3007`
   - Événements: Notifications en temps réel des nouveaux feedbacks
 
-### 2. 💬 FeedbackService (Port 3001 pour REST, Port 50051 pour gRPC)
+### 2. 💬 FeedbackService (Port 3006 pour REST, Port 50051 pour gRPC)
 
 Service responsable de la gestion des feedbacks utilisateurs, incluant la soumission, le stockage et le traitement.
 
@@ -117,6 +117,30 @@ Service responsable de la gestion des feedbacks utilisateurs, incluant la soumis
 
 **📢 Topics Kafka:**
 - `feedback-submitted` - Publié lorsqu'un nouveau feedback est soumis
+
+### 3. 🔔 NotificationService (Port 3003)
+
+Service responsable de la gestion des notifications pour les utilisateurs et les services.
+
+**🔧 Technologies implémentées:**
+- ✅ REST API pour récupérer les notifications
+- ✅ Kafka Consumer pour recevoir les événements de feedback
+- ✅ Kafka Producer pour republier les notifications
+- ✅ WebSockets pour les notifications en temps réel
+- ✅ MongoDB pour stocker l'historique des notifications
+
+**📝 Points d'entrée:**
+- 🔄 REST API:
+  - `GET /api/notifications` - Récupérer toutes les notifications
+  - `GET /api/notifications/user/:userId` - Récupérer les notifications par utilisateur
+
+- 🔌 WebSockets:
+  - URL: `ws://localhost:3003`
+  - Événements: Notifications en temps réel
+
+**📢 Topics Kafka:**
+- Consomme: `feedback-submitted`
+- Produit: `notifications`
 
 ## 📊 Schémas de Données
 
@@ -210,13 +234,49 @@ type Mutation {
 
 ## 🧪 Guide de Test
 
+### ✅ Tester avec Postman
+
+Pour tester l'ensemble du système, y compris les notifications, suivez ces étapes dans Postman:
+
+1. **Soumettre un Feedback (qui déclenchera une notification):**
+   ```
+   POST http://localhost:3007/api/feedback
+   Content-Type: application/json
+   
+   {
+     "userId": "user123",
+     "content": "This is a test feedback to check notifications!"
+   }
+   ```
+
+2. **Récupérer toutes les Notifications:**
+   ```
+   GET http://localhost:3003/api/notifications
+   ```
+
+3. **Récupérer les Notifications pour un Utilisateur spécifique:**
+   ```
+   GET http://localhost:3003/api/notifications/user/user123
+   ```
+
+4. **Récupérer tous les Feedbacks:**
+   ```
+   GET http://localhost:3007/api/feedbacks
+   ```
+
+5. **Tester la communication en temps réel avec WebSockets:**
+   - Dans Postman, créez une nouvelle requête WebSocket
+   - Connectez-vous à `ws://localhost:3007`
+   - Dans un autre onglet, soumettez un nouveau feedback
+   - Vous devriez voir la notification dans la connexion WebSocket
+
 ### ✅ Tester REST API
 
 Utilisez Postman ou curl pour tester les endpoints REST:
 
 1. **Soumettre un Feedback:**
    ```
-   POST http://localhost:3005/api/feedback
+   POST http://localhost:3007/api/feedback
    Content-Type: application/json
    
    {
@@ -227,27 +287,27 @@ Utilisez Postman ou curl pour tester les endpoints REST:
 
 2. **Récupérer tous les Feedbacks:**
    ```
-   GET http://localhost:3005/api/feedbacks
+   GET http://localhost:3007/api/feedbacks
    ```
 
 3. **Récupérer les Feedbacks par Utilisateur:**
    ```
-   GET http://localhost:3005/api/feedbacks/user/user123
+   GET http://localhost:3007/api/feedbacks/user/user123
    ```
 
 4. **Récupérer les Feedbacks par Catégorie:**
    ```
-   GET http://localhost:3005/api/feedbacks/category/feature
+   GET http://localhost:3007/api/feedbacks/category/feature
    ```
 
 5. **Récupérer les Feedbacks par Score:**
    ```
-   GET http://localhost:3005/api/feedbacks/score/0.7
+   GET http://localhost:3007/api/feedbacks/score/0.7
    ```
 
 ### 🔍 Tester GraphQL
 
-1. Ouvrez Apollo Studio Explorer à l'adresse: `http://localhost:3005/graphql`
+1. Ouvrez Apollo Studio Explorer à l'adresse: `http://localhost:3007/graphql`
 
 2. **Requête pour Tous les Feedbacks:**
    ```graphql
