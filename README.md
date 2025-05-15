@@ -10,7 +10,7 @@ Ce projet démontre la mise en œuvre d'une architecture de microservices modern
 - **Kafka** : Pour la communication asynchrone et événementielle
 - **WebSockets** : Pour les notifications en temps réel
 
-[Diagramme](img/diagram.png)
+![Diagramme](img/diagram.png)
 
 ### 🔑 Points Clés
 
